@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "swing_library",
+    "web",
+]
+resolver = "2"

@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h2> Load .class or .jar </h2>
+        <input id="fileInput" type="file">
+        <br>
+        <br>
+        <span> Command line arguments: </span>
+        <span id="commandLineArguments">
+            <button id="addCommandLineArgument"> + </button>
+        </span>
+        <br>
+        <br>
+        <button id="doRun">Run selected file</button>
+        <br>
+        <br>
+        <h2> Output </h2>
+        <canvas id="outputCanvas" style="width: 800px; height: 600px; border: 1px solid black;" tabindex="0"></canvas>
+        <br>
+        <br>
+        <textarea id="outputTextarea" style="width: 40vw; height: 50vh; resize: none;" spellcheck="false" readonly></textarea>
+        <br>
+        <button id="clearOutput"> Clear logs </button>
+
+        <script type="module">
+            let worker = new Worker("worker.js", { type: "module" });
+
+            worker.addEventListener("message", function(e) {
+                switch (e.data.type) {
+                    case "textOutput":
+                        document.getElementById("outputTextarea").value += e.data.data;
+                        break;
+                }
+            });
+
+            function init() {
+                let fileInput = document.getElementById("fileInput");
+                let commandLineArguments = document.getElementById("commandLineArguments");
+                let addCommandLineArgument = document.getElementById("addCommandLineArgument");
+                let doRun = document.getElementById("doRun");
+                let clearOutput = document.getElementById("clearOutput");
+
+                doRun.disabled = true;
+                document.getElementById("outputTextarea").value = "$ ";
+
+                fileInput.addEventListener("change", function(e) {
+                    let file = e.target.files[0];
+
+                    let reader = new FileReader();
+                    reader.readAsArrayBuffer(file);
+
+                    reader.addEventListener("loadend", function(e) {
+                        worker.postMessage({
+                            "type": "fileUpload",
+                            "fileName": file.name,
+                            "fileData": new Uint8Array(reader.result),
+                        });
+
+                        // Enable button once a file is selected
+                        doRun.disabled = false;
+                    });
+                });
+
+                addCommandLineArgument.addEventListener("click", function(e) {
+                    let child = document.createElement("span");
+                    child.style.border = "1px solid black";
+                    child.style.padding = "4px";
+                    child.style.margin = "4px";
+
+                    let input = document.createElement("input");
+                    input.type = "text";
+                    input.style.width = "80px";
+
+                    let removeArg = document.createElement("button");
+                    removeArg.innerText = "-";
+                    removeArg.addEventListener("click", function(e) {
+                        child.parentNode.removeChild(child);
+                    });
+
+                    child.appendChild(input);
+                    child.appendChild(removeArg);
+
+                    commandLineArguments.insertBefore(child, addCommandLineArgument);
+                });
+
+                doRun.addEventListener("click", function(e) {
+                    let args = [];
+                    for (let i = 0; i < commandLineArguments.children.length - 1; i ++) {
+                        let child = commandLineArguments.children[i];
+                        args.push(child.children[0].value);
+                    }
+
+                    worker.postMessage({
+                        "type": "runFile",
+                        "args": args,
+                    });
+                });
+
+                clearOutput.addEventListener("click", function(e) {
+                    document.getElementById("outputTextarea").value = "$ ";
+                });
+            }
+
+            init();
+        </script>
+    </body>
+</html>
+
