@@ -2,11 +2,15 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(js_name = "setInterval")]
+    fn set_interval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
+
     #[wasm_bindgen(js_name = "setFrameName")]
     fn set_frame_name(s: &str);
 
-    #[wasm_bindgen(js_name = "setInterval")]
-    fn set_interval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
+    // FIXME don't duplicate this across `web` and `swing_library`
+    #[wasm_bindgen(js_name = "appendText")]
+    fn output_to_err(s: &str);
 }
 
 use rjvm_core::{Context, Error, JvmString, MethodDescriptor, NativeMethod, Value};
@@ -65,10 +69,15 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
 
         if let Some(method_idx) = method_idx {
             let method = listener_class.instance_methods()[method_idx];
-            let _ = method.exec(
+            if let Err(error) = method.exec(
                 context,
                 &[Value::Object(Some(listener)), Value::Object(None)],
-            );
+            ) {
+                output_to_err(&format!(
+                    "Error while running timer callback: {:?}\n",
+                    error
+                ));
+            }
         } else {
             panic!("ActionListener objects should have actionPerformed function");
         }

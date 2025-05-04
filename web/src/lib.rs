@@ -32,7 +32,7 @@ pub fn file_loaded(name: &str, data: &[u8], args: Vec<String>) {
     output("\n");
 
     runner::run_file(data, args, is_jar);
-    output("$ ");
+    // output("$ ");
 }
 
 #[wasm_bindgen(js_name = "setPanicHook")]
