@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rjvm_core = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "dd53832c3579b7da17f8f252c017108d751e0ca0" }
+rjvm_core = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "6da01971cf0b1b928047d7838ef5672cb121d87d" }
+wasm-bindgen = "0.2.100"
+
+[dependencies.web-sys]
+features = ['Document', 'Element', 'HtmlElement', 'HtmlTextAreaElement', 'Node', 'Window']
+version = "0.3.77"
 
 [build-dependencies]
 glob = "0.3.1"

@@ -17,10 +17,11 @@
         <button id="doRun">Run selected file</button>
         <br>
         <br>
-        <h2> Output </h2>
+        <h4 id="frameName"> Untitled window </h4>
         <canvas id="outputCanvas" style="width: 800px; height: 600px; border: 1px solid black;" tabindex="0"></canvas>
         <br>
         <br>
+        <h2> Output </h2>
         <textarea id="outputTextarea" style="width: 40vw; height: 50vh; resize: none;" spellcheck="false" readonly></textarea>
         <br>
         <button id="clearOutput"> Clear logs </button>
@@ -32,6 +33,9 @@
                 switch (e.data.type) {
                     case "textOutput":
                         document.getElementById("outputTextarea").value += e.data.data;
+                        break;
+                    case "setFrameName":
+                        document.getElementById("frameName").innerText = e.data.name;
                         break;
                 }
             });

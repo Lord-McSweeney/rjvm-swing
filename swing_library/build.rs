@@ -23,6 +23,14 @@ fn compile_globals() {
             .collect::<Vec<_>>(),
     );
 
+    // And javax classes.
+    source_file_list.extend_from_slice(
+        &glob("./globals/javax/*/*.java")
+            .expect("Valid pattern")
+            .map(|p| p.expect("Files should read"))
+            .collect::<Vec<_>>(),
+    );
+
     compile_command.args(source_file_list);
 
     let compile_status = compile_command.status().expect("javac should run");
@@ -46,6 +54,14 @@ fn compile_globals() {
     // Also include files with a three-component package name.
     class_file_list.extend_from_slice(
         &glob(&out_dir.join("java/*/*/*.class").to_string_lossy())
+            .expect("Valid pattern")
+            .map(|p| p.expect("Files should read"))
+            .collect::<Vec<_>>(),
+    );
+
+    // And javax classes.
+    class_file_list.extend_from_slice(
+        &glob(&out_dir.join("javax/*/*.class").to_string_lossy())
             .expect("Valid pattern")
             .map(|p| p.expect("Files should read"))
             .collect::<Vec<_>>(),

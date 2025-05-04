@@ -11,6 +11,13 @@ self.appendText = function(text) {
     });
 }
 
+self.setFrameName = function(name) {
+    self.postMessage({
+        "type": "setFrameName",
+        "name": name,
+    });
+}
+
 let currentFileName = null;
 let currentFileData = null;
 
