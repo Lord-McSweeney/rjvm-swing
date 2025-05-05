@@ -26,4 +26,8 @@ public abstract class Component {
     public void setVisible(boolean visible) {
         // TODO implement
     }
+
+    public void repaint() {
+        // TODO implement
+    }
 }
