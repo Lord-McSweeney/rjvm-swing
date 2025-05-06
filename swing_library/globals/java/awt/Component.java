@@ -19,6 +19,10 @@ public abstract class Component {
         // TODO implement
     }
 
+    public void setCursor(Cursor cursor) {
+        // TODO implement
+    }
+
     public void setFocusable(boolean focusable) {
         // TODO implement
     }
