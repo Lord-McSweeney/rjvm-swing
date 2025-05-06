@@ -25,4 +25,8 @@ public class Color {
         this.b = b;
         this.a = a;
     }
+
+    public int getAlpha() {
+        return this.a;
+    }
 }

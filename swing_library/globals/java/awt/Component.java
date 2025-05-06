@@ -4,6 +4,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import javax.swing.JComponent;
+
 public abstract class Component {
     protected Component() { }
 
@@ -32,6 +34,12 @@ public abstract class Component {
     }
 
     public void repaint() {
-        // TODO implement
+        // TODO implement properly
+
+        // FIXME please
+        if (this instanceof JComponent) {
+            JComponent self = (JComponent) this;
+            self.paintComponent(new CRC2DGraphics());
+        }
     }
 }
