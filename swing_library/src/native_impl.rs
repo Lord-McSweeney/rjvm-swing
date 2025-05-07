@@ -1,4 +1,11 @@
+use rjvm_core::{Context, Error, JvmString, MethodDescriptor, NativeMethod, Value};
+use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
+
+// We MUST ensure that the closures are not dropped!
+thread_local! {
+    static ALL_CLOSURES: Mutex<Vec<Closure<dyn FnMut()>>> = Mutex::new(Vec::new());
+}
 
 #[wasm_bindgen]
 extern "C" {
@@ -27,8 +34,6 @@ extern "C" {
     #[wasm_bindgen(js_namespace = console, js_name = log)]
     fn js__debug(info: &str);
 }
-
-use rjvm_core::{Context, Error, JvmString, MethodDescriptor, NativeMethod, Value};
 
 pub fn register_native_mappings(context: Context) {
     #[rustfmt::skip]
@@ -104,8 +109,7 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
 
     js__set_interval(&closure, delay);
 
-    // :p
-    std::mem::forget(closure);
+    ALL_CLOSURES.with(|m| m.lock().unwrap().push(closure));
 
     Ok(None)
 }
