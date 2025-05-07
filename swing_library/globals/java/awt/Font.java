@@ -6,4 +6,9 @@ public class Font {
     public static final int ITALIC = 2;
 
     public Font(String name, int style, int size) { }
+
+    public int getSize() {
+        // TODO implement
+        return 0;
+    }
 }

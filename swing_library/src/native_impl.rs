@@ -3,14 +3,29 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = "setInterval")]
-    fn set_interval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
+    fn js__set_interval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
 
     #[wasm_bindgen(js_name = "setFrameName")]
-    fn set_frame_name(s: &str);
+    fn js__set_frame_name(s: &str);
+
+    #[wasm_bindgen(js_name = "drawLine")]
+    fn js__draw_line(x1: i32, y1: i32, x2: i32, y2: i32);
+
+    #[wasm_bindgen(js_name = "fillRect")]
+    fn js__fill_rect(x: i32, y: i32, width: i32, height: i32);
+
+    #[wasm_bindgen(js_name = "setColor")]
+    fn js__set_color(r: u8, g: u8, b: u8, a: u8);
+
+    #[wasm_bindgen(js_name = "translate")]
+    fn js__translate(x: i32, y: i32);
 
     // FIXME don't duplicate this across `web` and `swing_library`
     #[wasm_bindgen(js_name = "appendText")]
-    fn output_to_err(s: &str);
+    fn js__output_to_err(s: &str);
+
+    #[wasm_bindgen(js_namespace = console, js_name = log)]
+    fn js__debug(info: &str);
 }
 
 use rjvm_core::{Context, Error, JvmString, MethodDescriptor, NativeMethod, Value};
@@ -20,6 +35,10 @@ pub fn register_native_mappings(context: Context) {
     let mappings: &[(&str, NativeMethod)] = &[
         ("java/awt/Frame.initName.(Ljava/lang/String;)V", init_name),
         ("javax/swing/Timer.internalStartTimer.(ILjava/awt/event/ActionListener;)V", internal_start_timer),
+        ("java/awt/CRC2DGraphics.drawLine.(IIII)V", draw_line),
+        ("java/awt/CRC2DGraphics.fillRect.(IIII)V", fill_rect),
+        ("java/awt/CRC2DGraphics.setColor.(Ljava/awt/Color;)V", set_color),
+        ("java/awt/CRC2DGraphics.translate.(II)V", translate),
     ];
 
     context.register_native_mappings(mappings);
@@ -38,7 +57,7 @@ fn init_name(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     }
 
     let frame_name = String::from_utf16_lossy(&name_data);
-    set_frame_name(&frame_name);
+    js__set_frame_name(&frame_name);
 
     Ok(None)
 }
@@ -73,7 +92,7 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
                 context,
                 &[Value::Object(Some(listener)), Value::Object(None)],
             ) {
-                output_to_err(&format!(
+                js__output_to_err(&format!(
                     "Error while running timer callback: {:?}\n",
                     error
                 ));
@@ -83,10 +102,54 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
         }
     });
 
-    set_interval(&closure, delay);
+    js__set_interval(&closure, delay);
 
     // :p
     std::mem::forget(closure);
+
+    Ok(None)
+}
+
+fn draw_line(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let x1 = args[1].int();
+    let y1 = args[2].int();
+    let x2 = args[3].int();
+    let y2 = args[4].int();
+
+    js__draw_line(x1, y1, x2, y2);
+
+    Ok(None)
+}
+
+fn fill_rect(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let x = args[1].int();
+    let y = args[2].int();
+    let width = args[3].int();
+    let height = args[4].int();
+
+    js__fill_rect(x, y, width, height);
+
+    Ok(None)
+}
+
+fn set_color(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let color = args[1].object().unwrap();
+
+    let r = color.get_field(0).int() as u8;
+    let g = color.get_field(1).int() as u8;
+    let b = color.get_field(2).int() as u8;
+    let a = color.get_field(3).int() as u8;
+
+    js__set_color(r, g, b, a);
+
+    Ok(None)
+}
+
+fn translate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let x = args[1].int();
+    let y = args[2].int();
+
+    js__translate(x, y);
 
     Ok(None)
 }

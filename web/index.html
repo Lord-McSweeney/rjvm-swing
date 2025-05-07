@@ -18,7 +18,7 @@
         <br>
         <br>
         <h4 id="frameName"> Untitled window </h4>
-        <canvas id="outputCanvas" style="width: 800px; height: 600px; border: 1px solid black;" tabindex="0"></canvas>
+        <canvas id="outputCanvas" width="800" height="600" style="border: 1px solid black;" tabindex="0"></canvas>
         <br>
         <br>
         <h2> Output </h2>
@@ -27,7 +27,10 @@
         <button id="clearOutput"> Clear logs </button>
 
         <script type="module">
-            let worker = new Worker("worker.js", { type: "module" });
+            let worker = new Worker("worker.js?nc=" + Date.now(), { type: "module" });
+
+            const canvas = document.getElementById("outputCanvas");
+            const ctx = canvas.getContext('2d');
 
             worker.addEventListener("message", function(e) {
                 switch (e.data.type) {
@@ -36,6 +39,26 @@
                         break;
                     case "setFrameName":
                         document.getElementById("frameName").innerText = e.data.name;
+                        break;
+
+                    // Graphics functions
+                    case "canvasDrawLine":
+                        ctx.beginPath();
+                        ctx.moveTo(e.data.x1, e.data.y1);
+                        ctx.lineTo(e.data.x2, e.data.y2);
+                        ctx.closePath();
+                        ctx.stroke();
+                        break;
+                    case "canvasFillRect":
+                        ctx.fillRect(e.data.x, e.data.y, e.data.width, e.data.height);
+                        break;
+                    case "canvasSetColor":
+                        let color = "rgb(" + e.data.r + ", " + e.data.g + ", " + e.data.b + ")";
+                        ctx.fillStyle = color;
+                        ctx.strokeStyle = color;
+                        break;
+                    case "canvasTranslate":
+                        ctx.translate(e.data.x, e.data.y);
                         break;
                 }
             });

@@ -7,10 +7,10 @@ public class Color {
     public static final Color LIGHT_GRAY = new Color(192, 192, 192);
     public static final Color WHITE = new Color(255, 255, 255);
 
-    private int a;
     private int r;
     private int g;
     private int b;
+    private int a;
 
     public Color(int r, int g, int b) {
         this.r = r;

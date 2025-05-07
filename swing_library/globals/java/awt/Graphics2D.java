@@ -9,17 +9,13 @@ class CRC2DGraphics extends Graphics2D {
         super();
     }
 
-    public void drawLine(int x1, int y1, int x2, int y2) {
-        // TODO native implementation
-    }
+    public native void drawLine(int x1, int y1, int x2, int y2);
 
     public void drawString(String str, int x, int y) {
         // TODO native implementation
     }
 
-    public void fillRect(int x, int y, int width, int height) {
-        // TODO native implementation
-    }
+    public native void fillRect(int x, int y, int width, int height);
 
     public Font getFont() {
         return this.font;
@@ -30,15 +26,11 @@ class CRC2DGraphics extends Graphics2D {
         return new FontMetrics(null);
     }
 
-    public void setColor(Color color) {
-        // TODO native implementation
-    }
+    public native void setColor(Color color);
 
     public void setFont(Font font) {
         this.font = font;
     }
 
-    public void translate(int x, int y) {
-        // TODO native implementation
-    }
+    public native void translate(int x, int y);
 }
