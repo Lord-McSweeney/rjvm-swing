@@ -35,6 +35,16 @@ public class Color {
         this.a = a;
     }
 
+    public Color brighter() {
+        // TODO implement
+        return null;
+    }
+
+    public Color darker() {
+        // TODO implement
+        return null;
+    }
+
     public int getAlpha() {
         return this.a;
     }

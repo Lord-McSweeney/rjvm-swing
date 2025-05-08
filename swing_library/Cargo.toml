@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rjvm_core = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "99d42e7f3e03d7de166203871582dceae466cee9" }
+rjvm_core = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "06819b79d013119c5efb772586fc053ea1fa8092" }
 wasm-bindgen = "0.2.100"
 
 [dependencies.web-sys]

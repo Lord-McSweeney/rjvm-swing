@@ -74,26 +74,25 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
     // SAFETY: `listener` is stored in the Timer object so it's safe to use it
     // in the closure (it won't get collected)
 
+    // Lookup actionPerformed method
+    let func_name = JvmString::new(context.gc_ctx, "actionPerformed".to_string());
+    let func_descriptor_name = JvmString::new(
+        context.gc_ctx,
+        "(Ljava/awt/event/ActionEvent;)V".to_string(),
+    );
+
+    let func_descriptor = MethodDescriptor::from_string(context.gc_ctx, func_descriptor_name)
+        .expect("Valid descriptor");
+
+    let listener_class = listener.class();
+    let listener_vtable = listener_class.instance_method_vtable();
+
+    let method_idx = listener_vtable.lookup((func_name, func_descriptor));
+    let action_performed_method = method_idx.map(|m| listener_vtable.get_element(m));
+
     let closure = Closure::new(move || {
-        // Call actionPerformed method
-        let func_name = JvmString::new(context.gc_ctx, "actionPerformed".to_string());
-        let func_descriptor_name = JvmString::new(
-            context.gc_ctx,
-            "(Ljava/awt/event/ActionEvent;)V".to_string(),
-        );
-
-        let func_descriptor = MethodDescriptor::from_string(context.gc_ctx, func_descriptor_name)
-            .expect("Valid descriptor");
-
-        let listener_class = listener.class();
-
-        let method_idx = listener_class
-            .instance_method_vtable()
-            .lookup((func_name, func_descriptor));
-
-        if let Some(method_idx) = method_idx {
-            let method = listener_class.instance_methods()[method_idx];
-            if let Err(error) = method.exec(
+        if let Some(action_performed_method) = action_performed_method {
+            if let Err(error) = action_performed_method.exec(
                 context,
                 &[Value::Object(Some(listener)), Value::Object(None)],
             ) {
