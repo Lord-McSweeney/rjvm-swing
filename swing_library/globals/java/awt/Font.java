@@ -7,6 +7,8 @@ public class Font {
 
     public Font(String name, int style, int size) { }
 
+    public Font(Font font) { }
+
     public int getSize() {
         // TODO implement
         return 0;

@@ -88,21 +88,19 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
     let listener_vtable = listener_class.instance_method_vtable();
 
     let method_idx = listener_vtable.lookup((func_name, func_descriptor));
-    let action_performed_method = method_idx.map(|m| listener_vtable.get_element(m));
+    let action_performed_method = method_idx
+        .map(|m| listener_vtable.get_element(m))
+        .expect("ActionListener objects should have actionPerformed function");
 
     let closure = Closure::new(move || {
-        if let Some(action_performed_method) = action_performed_method {
-            if let Err(error) = action_performed_method.exec(
-                context,
-                &[Value::Object(Some(listener)), Value::Object(None)],
-            ) {
-                js__output_to_err(&format!(
-                    "Error while running timer callback: {:?}\n",
-                    error
-                ));
-            }
-        } else {
-            panic!("ActionListener objects should have actionPerformed function");
+        if let Err(error) = action_performed_method.exec(
+            context,
+            &[Value::Object(Some(listener)), Value::Object(None)],
+        ) {
+            js__output_to_err(&format!(
+                "Error while running timer callback: {:?}\n",
+                error
+            ));
         }
     });
 
