@@ -5,7 +5,7 @@ use crate::output_to_err;
 use rjvm_core::{
     Class, ClassFile, Context, Jar, JvmString, MethodDescriptor, Object, ResourceLoadType, Value,
 };
-use rjvm_globals::{native_impl as base_native_impl, GLOBALS_JAR};
+use rjvm_globals::{native_impl as base_native_impl, GLOBALS_BASE_JAR};
 
 use swing_library::{native_impl as swing_native_impl, GLOBALS_JAR as SWING_GLOBALS_JAR};
 
@@ -99,13 +99,14 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
     });
 
     // Load globals
-    let globals_jar = Jar::from_bytes(context.gc_ctx, GLOBALS_JAR.to_vec())
+    let globals_jar = Jar::from_bytes(context.gc_ctx, GLOBALS_BASE_JAR.to_vec())
         .expect("Builtin globals should be valid");
     context.add_jar(globals_jar);
 
-    // Load swing globals
+    // Load swing library (*not* `GLOBALS_DESKTOP_JAR` provided by `rjvm_globals`,
+    // that one's just stubs)
     let swing_globals_jar = Jar::from_bytes(context.gc_ctx, SWING_GLOBALS_JAR.to_vec())
-        .expect("Swing globals should be valid");
+        .expect("Builtin globals should be valid");
     context.add_jar(swing_globals_jar);
 
     base_native_impl::register_native_mappings(context);
@@ -143,7 +144,7 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
     )));
 
     // Store this on the stack so that GC doesn't decide to collect it
-    context.frame_data.borrow()[0].set(args_array);
+    context.frame_data[0].set(args_array);
     context.frame_index.set(1);
 
     // Call main method
