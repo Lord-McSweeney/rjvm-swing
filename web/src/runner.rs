@@ -171,12 +171,6 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
             main_class.dot_name(),
         ));
     }
-
-    unsafe {
-        context.gc_ctx.collect(&context);
-
-        context.gc_ctx.drop();
-    }
 }
 
 pub fn on_mouse_move(x: i32, y: i32) {
