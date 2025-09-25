@@ -28,7 +28,10 @@ class CRC2DGraphics extends Graphics2D {
 
     public void setFont(Font font) {
         this.font = font;
+        this.internalSetFont(font.name, font.size, font.style);
     }
+
+    private native void internalSetFont(String name, int size, int style);
 
     public native void translate(int x, int y);
 }

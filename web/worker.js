@@ -1,4 +1,4 @@
-import __wbg_init, { fileLoaded, setPanicHook } from "./pkg/rjvm_swing.js";
+import __wbg_init, { fileLoaded, setPanicHook, onMouseMove } from "./pkg/rjvm_swing.js";
 
 await __wbg_init();
 
@@ -77,6 +77,15 @@ self.drawString = function(text, x, y) {
     });
 }
 
+self.setFont = function(name, size, modifiers) {
+    paintQueue.push({
+        "type": "setFont",
+        "name": name,
+        "size": size,
+        "modifiers": modifiers,
+    });
+}
+
 let currentFileName = null;
 let currentFileData = null;
 
@@ -95,6 +104,10 @@ self.addEventListener("message", function(e) {
             }
 
             fileLoaded(currentFileName, currentFileData, args);
+            break;
+
+        case "mouseMove":
+            onMouseMove(e.data.x, e.data.y);
             break;
     }
 });

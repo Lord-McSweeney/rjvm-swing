@@ -56,6 +56,9 @@
                         case "drawString":
                             ctx.fillText(e.text, e.x, e.y);
                             break;
+                        case "setFont":
+                            ctx.font = e.modifiers + e.size + "px " + e.name;
+                            break;
                     }
                 }
 
@@ -76,6 +79,16 @@
                         }
                         break;
                 }
+            });
+
+            canvas.addEventListener("mousemove", function(e) {
+                let x = e.offsetX;
+                let y = e.offsetY;
+                worker.postMessage({
+                    "type": "mouseMove",
+                    "x": x,
+                    "y": y,
+                });
             });
 
             function init() {

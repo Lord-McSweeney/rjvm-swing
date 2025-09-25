@@ -39,3 +39,8 @@ pub fn file_loaded(name: &str, data: &[u8], args: Vec<String>) {
 pub fn set_panic_hook() {
     console_error_panic_hook::set_once();
 }
+
+#[wasm_bindgen(js_name = "onMouseMove")]
+pub fn on_mouse_move(x: i32, y: i32) {
+    runner::on_mouse_move(x, y)
+}

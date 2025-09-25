@@ -9,6 +9,12 @@ use rjvm_globals::{native_impl as base_native_impl, GLOBALS_JAR};
 
 use swing_library::{native_impl as swing_native_impl, GLOBALS_JAR as SWING_GLOBALS_JAR};
 
+use std::sync::Mutex;
+
+thread_local! {
+    static CONTEXT: Mutex<Option<Context>> = Mutex::new(None);
+}
+
 fn init_main_class(
     context: Context,
     read_file: Vec<u8>,
@@ -88,6 +94,10 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
     let loader = loader_backend::WebLoaderBackend::new();
     let context = Context::new(Box::new(loader));
 
+    CONTEXT.with(|m| {
+        *m.lock().unwrap() = Some(context);
+    });
+
     // Load globals
     let globals_jar = Jar::from_bytes(context.gc_ctx, GLOBALS_JAR.to_vec())
         .expect("Builtin globals should be valid");
@@ -166,4 +176,17 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
 
         context.gc_ctx.drop();
     }
+}
+
+pub fn on_mouse_move(x: i32, y: i32) {
+    CONTEXT.with(|m| {
+        let context = m.lock().unwrap();
+        if let Some(context) = &*context {
+            let jpanel_str = JvmString::new(context.gc_ctx, "javax/swing/JPanel".to_string());
+            let jpanel_class = context.lookup_class(jpanel_str).unwrap();
+            let method = jpanel_class.static_methods()[0];
+
+            let _ = method.exec(*context, &[Value::Integer(x), Value::Integer(y)]);
+        }
+    });
 }

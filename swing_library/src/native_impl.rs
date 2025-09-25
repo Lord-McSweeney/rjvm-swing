@@ -36,6 +36,9 @@ extern "C" {
     #[wasm_bindgen(js_name = "drawString")]
     fn js__draw_string(string: &str, x: i32, y: i32);
 
+    #[wasm_bindgen(js_name = "setFont")]
+    fn js__set_font(string: &str, size: i32, modifiers: &str);
+
     // FIXME don't duplicate this across `web` and `swing_library`
     #[wasm_bindgen(js_name = "appendText")]
     fn js__output_to_err(s: &str);
@@ -56,6 +59,7 @@ pub fn register_native_mappings(context: Context) {
         ("java/awt/CRC2DGraphics.setColor.(Ljava/awt/Color;)V", set_color),
         ("java/awt/CRC2DGraphics.translate.(II)V", translate),
         ("java/awt/CRC2DGraphics.drawString.(Ljava/lang/String;II)V", draw_string),
+        ("java/awt/CRC2DGraphics.internalSetFont.(Ljava/lang/String;II)V", internal_set_font),
     ];
 
     context.register_native_mappings(mappings);
@@ -195,6 +199,33 @@ fn draw_string(_context: Context, args: &[Value]) -> Result<Option<Value>, Error
     let y = args[3].int();
 
     js__draw_string(&string, x, y);
+
+    Ok(None)
+}
+
+fn internal_set_font(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let string_obj = args[1].object().unwrap();
+
+    let chars = string_obj.get_field(0).object().unwrap();
+    let chars = chars.get_array_data();
+    let chars = chars
+        .iter()
+        .map(|c| c.get().int() as u16)
+        .collect::<Vec<_>>();
+
+    let font_name = String::from_utf16_lossy(&chars);
+
+    let size = args[2].int();
+    let style = args[3].int();
+
+    let modifiers = match style {
+        1 => "bold ",
+        2 => "italic ",
+        3 => "italic bold ",
+        _ => "",
+    };
+
+    js__set_font(&font_name, size, modifiers);
 
     Ok(None)
 }
