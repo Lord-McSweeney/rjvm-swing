@@ -4,6 +4,8 @@ await __wbg_init();
 
 setPanicHook();
 
+let paintQueue = [];
+
 self.appendText = function(text) {
     self.postMessage({
         "type": "textOutput",
@@ -18,8 +20,19 @@ self.setFrameName = function(name) {
     });
 }
 
-self.drawLine = function(x1, y1, x2, y2) {
+self.startPaint = function() {
+    paintQueue = [];
+}
+
+self.flushPaint = function() {
     self.postMessage({
+        "type": "flushPaint",
+        "data": paintQueue,
+    });
+}
+
+self.drawLine = function(x1, y1, x2, y2) {
+    paintQueue.push({
         "type": "canvasDrawLine",
         "x1": x1,
         "y1": y1,
@@ -29,7 +42,7 @@ self.drawLine = function(x1, y1, x2, y2) {
 }
 
 self.fillRect = function(x, y, width, height) {
-    self.postMessage({
+    paintQueue.push({
         "type": "canvasFillRect",
         "x": x,
         "y": y,
@@ -39,7 +52,7 @@ self.fillRect = function(x, y, width, height) {
 }
 
 self.setColor = function(r, g, b, _) {
-    self.postMessage({
+    paintQueue.push({
         "type": "canvasSetColor",
         "r": r,
         "g": g,
@@ -48,8 +61,17 @@ self.setColor = function(r, g, b, _) {
 }
 
 self.translate = function(x, y, _) {
-    self.postMessage({
+    paintQueue.push({
         "type": "canvasTranslate",
+        "x": x,
+        "y": y,
+    });
+}
+
+self.drawString = function(text, x, y) {
+    paintQueue.push({
+        "type": "drawString",
+        "text": text,
         "x": x,
         "y": y,
     });

@@ -11,9 +11,7 @@ class CRC2DGraphics extends Graphics2D {
 
     public native void drawLine(int x1, int y1, int x2, int y2);
 
-    public void drawString(String str, int x, int y) {
-        // TODO native implementation
-    }
+    public native void drawString(String str, int x, int y);
 
     public native void fillRect(int x, int y, int width, int height);
 

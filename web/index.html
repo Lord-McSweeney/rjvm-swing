@@ -33,6 +33,32 @@
             const ctx = canvas.getContext('2d');
 
             worker.addEventListener("message", function(e) {
+                function handleCanvasOperation(e) {
+                    switch (e.type) {
+                        case "canvasDrawLine":
+                            ctx.beginPath();
+                            ctx.moveTo(e.x1, e.y1);
+                            ctx.lineTo(e.x2, e.y2);
+                            ctx.closePath();
+                            ctx.stroke();
+                            break;
+                        case "canvasFillRect":
+                            ctx.fillRect(e.x, e.y, e.width, e.height);
+                            break;
+                        case "canvasSetColor":
+                            let color = "rgb(" + e.r + ", " + e.g + ", " + e.b + ")";
+                            ctx.fillStyle = color;
+                            ctx.strokeStyle = color;
+                            break;
+                        case "canvasTranslate":
+                            ctx.translate(e.x, e.y);
+                            break;
+                        case "drawString":
+                            ctx.fillText(e.text, e.x, e.y);
+                            break;
+                    }
+                }
+
                 switch (e.data.type) {
                     case "textOutput":
                         document.getElementById("outputTextarea").value += e.data.data;
@@ -41,24 +67,13 @@
                         document.getElementById("frameName").innerText = e.data.name;
                         break;
 
-                    // Graphics functions
-                    case "canvasDrawLine":
-                        ctx.beginPath();
-                        ctx.moveTo(e.data.x1, e.data.y1);
-                        ctx.lineTo(e.data.x2, e.data.y2);
-                        ctx.closePath();
-                        ctx.stroke();
-                        break;
-                    case "canvasFillRect":
-                        ctx.fillRect(e.data.x, e.data.y, e.data.width, e.data.height);
-                        break;
-                    case "canvasSetColor":
-                        let color = "rgb(" + e.data.r + ", " + e.data.g + ", " + e.data.b + ")";
-                        ctx.fillStyle = color;
-                        ctx.strokeStyle = color;
-                        break;
-                    case "canvasTranslate":
-                        ctx.translate(e.data.x, e.data.y);
+                    case "flushPaint":
+                        ctx.fillStyle = "#FFF";
+                        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        let data = e.data.data;
+                        for (let i = 0; i < data.length; i ++) {
+                            handleCanvasOperation(data[i]);
+                        }
                         break;
                 }
             });

@@ -12,6 +12,12 @@ extern "C" {
     #[wasm_bindgen(js_name = "setInterval")]
     fn js__set_interval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
 
+    #[wasm_bindgen(js_name = "startPaint")]
+    fn js__start_paint();
+
+    #[wasm_bindgen(js_name = "flushPaint")]
+    fn js__flush_paint();
+
     #[wasm_bindgen(js_name = "setFrameName")]
     fn js__set_frame_name(s: &str);
 
@@ -27,6 +33,9 @@ extern "C" {
     #[wasm_bindgen(js_name = "translate")]
     fn js__translate(x: i32, y: i32);
 
+    #[wasm_bindgen(js_name = "drawString")]
+    fn js__draw_string(string: &str, x: i32, y: i32);
+
     // FIXME don't duplicate this across `web` and `swing_library`
     #[wasm_bindgen(js_name = "appendText")]
     fn js__output_to_err(s: &str);
@@ -39,11 +48,14 @@ pub fn register_native_mappings(context: Context) {
     #[rustfmt::skip]
     let mappings: &[(&str, NativeMethod)] = &[
         ("java/awt/Frame.initName.(Ljava/lang/String;)V", init_name),
+        ("java/awt/Component.startPaint.()V", start_paint),
+        ("java/awt/Component.flushPaint.()V", flush_paint),
         ("javax/swing/Timer.internalStartTimer.(ILjava/awt/event/ActionListener;)V", internal_start_timer),
         ("java/awt/CRC2DGraphics.drawLine.(IIII)V", draw_line),
         ("java/awt/CRC2DGraphics.fillRect.(IIII)V", fill_rect),
         ("java/awt/CRC2DGraphics.setColor.(Ljava/awt/Color;)V", set_color),
         ("java/awt/CRC2DGraphics.translate.(II)V", translate),
+        ("java/awt/CRC2DGraphics.drawString.(Ljava/lang/String;II)V", draw_string),
     ];
 
     context.register_native_mappings(mappings);
@@ -63,6 +75,18 @@ fn init_name(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
 
     let frame_name = String::from_utf16_lossy(&name_data);
     js__set_frame_name(&frame_name);
+
+    Ok(None)
+}
+
+fn start_paint(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+    js__start_paint();
+
+    Ok(None)
+}
+
+fn flush_paint(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+    js__flush_paint();
 
     Ok(None)
 }
@@ -151,6 +175,26 @@ fn translate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     let y = args[2].int();
 
     js__translate(x, y);
+
+    Ok(None)
+}
+
+fn draw_string(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let string_obj = args[1].object().unwrap();
+
+    let chars = string_obj.get_field(0).object().unwrap();
+    let chars = chars.get_array_data();
+    let chars = chars
+        .iter()
+        .map(|c| c.get().int() as u16)
+        .collect::<Vec<_>>();
+
+    let string = String::from_utf16_lossy(&chars);
+
+    let x = args[2].int();
+    let y = args[3].int();
+
+    js__draw_string(&string, x, y);
 
     Ok(None)
 }

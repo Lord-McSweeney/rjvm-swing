@@ -37,9 +37,14 @@ public abstract class Component {
         // TODO implement properly
 
         // FIXME please
+        this.startPaint();
         if (this instanceof JComponent) {
             JComponent self = (JComponent) this;
             self.paintComponent(new CRC2DGraphics());
         }
+        this.flushPaint();
     }
+
+    private native void startPaint();
+    private native void flushPaint();
 }
