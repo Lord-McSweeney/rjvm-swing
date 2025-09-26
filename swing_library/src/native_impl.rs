@@ -130,8 +130,8 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
             &[Value::Object(Some(listener)), Value::Object(None)],
         ) {
             js__output_to_err(&format!(
-                "Error while running timer callback: {:?}\n",
-                error
+                "Error while running timer callback: {}\n",
+                error.display(context)
             ));
         }
     });
