@@ -22,8 +22,10 @@ public abstract class Component {
     }
 
     public void setCursor(Cursor cursor) {
-        // TODO implement
+        this.internalSetCursor(cursor.type);
     }
+
+    private native void internalSetCursor(int type);
 
     public void setFocusable(boolean focusable) {
         // TODO implement

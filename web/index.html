@@ -78,6 +78,10 @@
                             handleCanvasOperation(data[i]);
                         }
                         break;
+
+                    case "setCursor":
+                        ctx.canvas.style.cursor = e.data.name;
+                        break;
                 }
             });
 

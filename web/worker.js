@@ -87,6 +87,13 @@ self.setFont = function(name, size, modifiers) {
     });
 }
 
+self.setCursor = function(name) {
+    self.postMessage({
+        "type": "setCursor",
+        "name": name,
+    });
+}
+
 let currentFileName = null;
 let currentFileData = null;
 

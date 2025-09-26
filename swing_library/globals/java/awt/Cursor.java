@@ -18,7 +18,7 @@ public class Cursor {
 
     public static final int CUSTOM_CURSOR = -1;
 
-    private int type;
+    int type;
 
     public Cursor(int type) {
         if (type < Cursor.DEFAULT_CURSOR || type > Cursor.MOVE_CURSOR) {

@@ -39,6 +39,9 @@ extern "C" {
     #[wasm_bindgen(js_name = "setFont")]
     fn js__set_font(string: &str, size: i32, modifiers: &str);
 
+    #[wasm_bindgen(js_name = "setCursor")]
+    fn js__set_cursor(name: &str);
+
     // FIXME don't duplicate this across `web` and `swing_library`
     #[wasm_bindgen(js_name = "appendText")]
     fn js__output_to_err(s: &str);
@@ -60,6 +63,7 @@ pub fn register_native_mappings(context: Context) {
         ("java/awt/CRC2DGraphics.translate.(II)V", translate),
         ("java/awt/CRC2DGraphics.drawString.(Ljava/lang/String;II)V", draw_string),
         ("java/awt/CRC2DGraphics.internalSetFont.(Ljava/lang/String;II)V", internal_set_font),
+        ("java/awt/Component.internalSetCursor.(I)V", internal_set_cursor),
     ];
 
     context.register_native_mappings(mappings);
@@ -230,6 +234,21 @@ fn internal_set_font(_context: Context, args: &[Value]) -> Result<Option<Value>,
     };
 
     js__set_font(&font_name, size, modifiers);
+
+    Ok(None)
+}
+
+fn internal_set_cursor(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let cursor_type = args[1].int();
+
+    let cursor_name = match cursor_type {
+        0 => "default",
+        2 => "text",
+        12 => "pointer",
+        other => unimplemented!("Set cursor to {}", other),
+    };
+
+    js__set_cursor(cursor_name);
 
     Ok(None)
 }
