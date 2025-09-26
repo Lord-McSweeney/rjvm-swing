@@ -91,6 +91,28 @@
                 });
             });
 
+            canvas.addEventListener("mousedown", function(e) {
+                let x = e.offsetX;
+                let y = e.offsetY;
+                // TODO buttons?
+                worker.postMessage({
+                    "type": "mouseDown",
+                    "x": x,
+                    "y": y,
+                });
+            });
+
+            canvas.addEventListener("mouseup", function(e) {
+                let x = e.offsetX;
+                let y = e.offsetY;
+                // TODO buttons?
+                worker.postMessage({
+                    "type": "mouseUp",
+                    "x": x,
+                    "y": y,
+                });
+            });
+
             function init() {
                 let fileInput = document.getElementById("fileInput");
                 let commandLineArguments = document.getElementById("commandLineArguments");

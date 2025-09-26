@@ -1,4 +1,4 @@
-import __wbg_init, { fileLoaded, setPanicHook, onMouseMove } from "./pkg/rjvm_swing.js";
+import __wbg_init, { fileLoaded, setPanicHook, onMouseMove, onMouseDown, onMouseUp } from "./pkg/rjvm_swing.js";
 
 await __wbg_init();
 
@@ -108,6 +108,14 @@ self.addEventListener("message", function(e) {
 
         case "mouseMove":
             onMouseMove(e.data.x, e.data.y);
+            break;
+
+        case "mouseDown":
+            onMouseDown(e.data.x, e.data.y);
+            break;
+
+        case "mouseUp":
+            onMouseUp(e.data.x, e.data.y);
             break;
     }
 });

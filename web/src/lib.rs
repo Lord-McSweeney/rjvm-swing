@@ -44,3 +44,13 @@ pub fn set_panic_hook() {
 pub fn on_mouse_move(x: i32, y: i32) {
     runner::on_mouse_move(x, y)
 }
+
+#[wasm_bindgen(js_name = "onMouseDown")]
+pub fn on_mouse_down(x: i32, y: i32) {
+    runner::on_mouse_down(x, y)
+}
+
+#[wasm_bindgen(js_name = "onMouseUp")]
+pub fn on_mouse_up(x: i32, y: i32) {
+    runner::on_mouse_up(x, y)
+}
