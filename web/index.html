@@ -46,7 +46,8 @@
                             ctx.fillRect(e.x, e.y, e.width, e.height);
                             break;
                         case "setColor":
-                            let color = "rgba(" + e.r + ", " + e.g + ", " + e.b + ", " + e.a + ")";
+                            ctx.globalAlpha = e.a / 255;
+                            let color = "rgb(" + e.r + ", " + e.g + ", " + e.b + ")";
                             ctx.fillStyle = color;
                             ctx.strokeStyle = color;
                             break;
