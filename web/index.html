@@ -35,22 +35,22 @@
             worker.addEventListener("message", function(e) {
                 function handleCanvasOperation(e) {
                     switch (e.type) {
-                        case "canvasDrawLine":
+                        case "drawLine":
                             ctx.beginPath();
                             ctx.moveTo(e.x1, e.y1);
                             ctx.lineTo(e.x2, e.y2);
                             ctx.closePath();
                             ctx.stroke();
                             break;
-                        case "canvasFillRect":
+                        case "fillRect":
                             ctx.fillRect(e.x, e.y, e.width, e.height);
                             break;
-                        case "canvasSetColor":
-                            let color = "rgb(" + e.r + ", " + e.g + ", " + e.b + ")";
+                        case "setColor":
+                            let color = "rgba(" + e.r + ", " + e.g + ", " + e.b + ", " + e.a + ")";
                             ctx.fillStyle = color;
                             ctx.strokeStyle = color;
                             break;
-                        case "canvasTranslate":
+                        case "translate":
                             ctx.translate(e.x, e.y);
                             break;
                         case "drawString":

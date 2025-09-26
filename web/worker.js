@@ -33,7 +33,7 @@ self.flushPaint = function() {
 
 self.drawLine = function(x1, y1, x2, y2) {
     paintQueue.push({
-        "type": "canvasDrawLine",
+        "type": "drawLine",
         "x1": x1,
         "y1": y1,
         "x2": x2,
@@ -43,7 +43,7 @@ self.drawLine = function(x1, y1, x2, y2) {
 
 self.fillRect = function(x, y, width, height) {
     paintQueue.push({
-        "type": "canvasFillRect",
+        "type": "fillRect",
         "x": x,
         "y": y,
         "width": width,
@@ -51,18 +51,19 @@ self.fillRect = function(x, y, width, height) {
     });
 }
 
-self.setColor = function(r, g, b, _) {
+self.setColor = function(r, g, b, a) {
     paintQueue.push({
-        "type": "canvasSetColor",
+        "type": "setColor",
         "r": r,
         "g": g,
         "b": b,
+        "a": a,
     });
 }
 
-self.translate = function(x, y, _) {
+self.translate = function(x, y) {
     paintQueue.push({
-        "type": "canvasTranslate",
+        "type": "translate",
         "x": x,
         "y": y,
     });
