@@ -10,8 +10,8 @@ crate-type = ["cdylib"]
 console_error_panic_hook = "0.1.7"
 getrandom = { version = "0.2.15", features = ["js"] }
 regex = "=1.11.1"
-rjvm_core = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "3973308e0a29fb3e42fa67fff0ddbe5ecdf6c3bb" }
-rjvm_globals = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "3973308e0a29fb3e42fa67fff0ddbe5ecdf6c3bb" }
+rjvm_core = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "2531626904e98a5329ba4a5b6c584f305e88dac1" }
+rjvm_globals = { git = "https://github.com/Lord-McSweeney/rjvm", rev = "2531626904e98a5329ba4a5b6c584f305e88dac1" }
 swing_library = { path = "../swing_library" }
 wasm-bindgen = "0.2.100"
 
