@@ -5,9 +5,9 @@ use crate::output_to_err;
 use rjvm_core::{
     Class, ClassFile, Context, Jar, JvmString, MethodDescriptor, Object, ResourceLoadType, Value,
 };
-use rjvm_globals::{native_impl as base_native_impl, GLOBALS_BASE_JAR};
+use rjvm_globals::{GLOBALS_BASE_JAR, native_impl as base_native_impl};
 
-use swing_library::{native_impl as swing_native_impl, GLOBALS_JAR as SWING_GLOBALS_JAR};
+use swing_library::{GLOBALS_JAR as SWING_GLOBALS_JAR, native_impl as swing_native_impl};
 
 use std::sync::Mutex;
 
