@@ -41,8 +41,7 @@ public class Color {
     }
 
     public Color darker() {
-        // TODO implement
-        return null;
+        return new Color((int) (this.r * 0.7), (int) (this.g * 0.7), (int) (this.b * 0.7), this.a);
     }
 
     public int getAlpha() {

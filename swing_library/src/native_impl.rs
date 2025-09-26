@@ -162,14 +162,18 @@ fn fill_rect(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
 }
 
 fn set_color(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
-    let color = args[1].object().unwrap();
+    let color = args[1].object();
 
-    let r = color.get_field(0).int() as u8;
-    let g = color.get_field(1).int() as u8;
-    let b = color.get_field(2).int() as u8;
-    let a = color.get_field(3).int() as u8;
+    // The docs don't say what happens when calling `setColor(null)`, but
+    // `SunGraphics2D` just ignores the call
+    if let Some(color) = color {
+        let r = color.get_field(0).int() as u8;
+        let g = color.get_field(1).int() as u8;
+        let b = color.get_field(2).int() as u8;
+        let a = color.get_field(3).int() as u8;
 
-    js__set_color(r, g, b, a);
+        js__set_color(r, g, b, a);
+    }
 
     Ok(None)
 }
