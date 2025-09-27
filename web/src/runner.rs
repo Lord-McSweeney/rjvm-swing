@@ -176,7 +176,7 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
     }
 }
 
-macro_rules! define_global_mouse_event_func {
+macro_rules! define_global_event_func {
     ($name:ident, $static_method_id:literal) => {
         pub fn $name(x: i32, y: i32) {
             CONTEXT.with(|m| {
@@ -187,13 +187,20 @@ macro_rules! define_global_mouse_event_func {
                     let jpanel_class = context.lookup_class(jpanel_str).unwrap();
                     let method = jpanel_class.static_methods()[$static_method_id];
 
-                    let _ = method.exec(*context, &[Value::Integer(x), Value::Integer(y)]);
+                    let result = method.exec(*context, &[Value::Integer(x), Value::Integer(y)]);
+
+                    if let Err(error) = result {
+                        output_to_err(&format!(
+                            "Error while running event dispatch: {}\n",
+                            error.display(*context)
+                        ));
+                    }
                 }
             });
         }
     };
 }
 
-define_global_mouse_event_func!(on_mouse_move, 0);
-define_global_mouse_event_func!(on_mouse_down, 1);
-define_global_mouse_event_func!(on_mouse_up, 2);
+define_global_event_func!(on_mouse_move, 0);
+define_global_event_func!(on_mouse_down, 1);
+define_global_event_func!(on_mouse_up, 2);
