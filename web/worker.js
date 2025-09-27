@@ -69,6 +69,13 @@ self.translate = function(x, y) {
     });
 }
 
+self.rotate = function(theta) {
+    paintQueue.push({
+        "type": "rotate",
+        "theta": theta,
+    });
+}
+
 self.drawString = function(text, x, y) {
     paintQueue.push({
         "type": "drawString",

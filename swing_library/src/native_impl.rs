@@ -33,6 +33,9 @@ extern "C" {
     #[wasm_bindgen(js_name = "translate")]
     fn js__translate(x: i32, y: i32);
 
+    #[wasm_bindgen(js_name = "rotate")]
+    fn js__rotate(theta: f64);
+
     #[wasm_bindgen(js_name = "drawString")]
     fn js__draw_string(string: &str, x: i32, y: i32);
 
@@ -61,6 +64,7 @@ pub fn register_native_mappings(context: Context) {
         ("java/awt/CRC2DGraphics.fillRect.(IIII)V", fill_rect),
         ("java/awt/CRC2DGraphics.setColor.(Ljava/awt/Color;)V", set_color),
         ("java/awt/CRC2DGraphics.translate.(II)V", translate),
+        ("java/awt/CRC2DGraphics.rotate.(D)V", rotate),
         ("java/awt/CRC2DGraphics.drawString.(Ljava/lang/String;II)V", draw_string),
         ("java/awt/CRC2DGraphics.internalSetFont.(Ljava/lang/String;II)V", internal_set_font),
         ("java/awt/Component.internalSetCursor.(I)V", internal_set_cursor),
@@ -187,6 +191,14 @@ fn translate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     let y = args[2].int();
 
     js__translate(x, y);
+
+    Ok(None)
+}
+
+fn rotate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let theta = args[1].double();
+
+    js__rotate(theta);
 
     Ok(None)
 }

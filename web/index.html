@@ -54,6 +54,9 @@
                         case "translate":
                             ctx.translate(e.x, e.y);
                             break;
+                        case "rotate":
+                            ctx.translate(e.theta);
+                            break;
                         case "drawString":
                             ctx.fillText(e.text, e.x, e.y);
                             break;

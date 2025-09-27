@@ -1,6 +1,8 @@
 package java.awt;
 
-public abstract class Graphics2D extends Graphics { }
+public abstract class Graphics2D extends Graphics {
+    public abstract void rotate(double theta);
+}
 
 class CRC2DGraphics extends Graphics2D {
     private Font font;
@@ -34,4 +36,6 @@ class CRC2DGraphics extends Graphics2D {
     private native void internalSetFont(String name, int size, int style);
 
     public native void translate(int x, int y);
+
+    public native void rotate(double theta);
 }
