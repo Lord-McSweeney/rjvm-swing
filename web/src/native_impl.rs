@@ -13,7 +13,9 @@ pub fn register_native_mappings(context: Context) {
         ("java/io/File.getCanonicalPath.()Ljava/lang/String;", file_get_canonical_path),
         ("java/io/File.getAbsolutePath.()Ljava/lang/String;", file_get_absolute_path),
         ("java/io/FileOutputStream.writeInternal.(I)V", file_stream_write_internal),
+        ("java/io/FileOutputStream.flushInternal.()V", file_stream_flush_internal),
         ("java/io/FileInputStream.readInternal.()I", file_stream_read_internal),
+        ("java/io/FileInputStream.readMultiInternal.([BII)I", file_stream_read_multi_internal),
         ("java/io/FileInputStream.availableInternal.()I", file_stream_available_internal),
         ("java/io/FileDescriptor.internalWriteableDescriptorFromPath.(Ljava/lang/String;)I", writeable_descriptor_from_path),
         ("java/io/FileDescriptor.internalReadableDescriptorFromPath.(Ljava/lang/String;)I", readable_descriptor_from_path),
@@ -111,6 +113,27 @@ fn file_stream_write_internal(_context: Context, args: &[Value]) -> Result<Optio
     Ok(None)
 }
 
+fn file_stream_flush_internal(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+    let stream = args[0].object().unwrap();
+    let stream_fd = stream.get_field(0).object().unwrap();
+    let stream_descriptor = stream_fd.get_field(0).int() as u32;
+
+    match stream_descriptor {
+        0 => {
+            // Flushing stdin is a noop
+        }
+        1 => {
+            // `output` does not buffer, so no need to flush
+        }
+        2 => {
+            // `output_to_err` does not buffer, so no need to flush
+        }
+        _ => unreachable!("cannot have descriptors >2 on web"),
+    }
+
+    Ok(None)
+}
+
 fn file_stream_read_internal(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let stream = args[0].object().unwrap();
     let stream_fd = stream.get_field(0).object().unwrap();
@@ -127,6 +150,29 @@ fn file_stream_read_internal(_context: Context, args: &[Value]) -> Result<Option
         }
         _ => unreachable!("cannot have descriptors >2 on web"),
     }
+}
+
+fn file_stream_read_multi_internal(
+    _context: Context,
+    args: &[Value],
+) -> Result<Option<Value>, Error> {
+    let stream = args[0].object().unwrap();
+    let stream_fd = stream.get_field(0).object().unwrap();
+    let stream_descriptor = stream_fd.get_field(0).int() as u32;
+
+    match stream_descriptor {
+        0 => {
+            // TODO implement
+        }
+        1 | 2 => {
+            // Output streams never yield input
+            loop {}
+        }
+        _ => unreachable!("cannot have descriptors >2 on web"),
+    }
+
+    // TODO implement
+    Ok(Some(Value::Integer(0)))
 }
 
 fn file_stream_available_internal(
