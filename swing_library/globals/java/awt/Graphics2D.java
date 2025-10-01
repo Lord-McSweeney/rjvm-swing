@@ -15,6 +15,10 @@ class CRC2DGraphics extends Graphics2D {
 
     public native void drawString(String str, int x, int y);
 
+    public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints) {
+        // TODO implement
+    }
+
     public native void fillRect(int x, int y, int width, int height);
 
     public Font getFont() {
