@@ -1,4 +1,5 @@
 use rjvm_core::{Context, Error, JvmString, MethodDescriptor, NativeMethod, Value};
+use std::cell::Cell;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 
@@ -77,13 +78,8 @@ fn init_name(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     let name_object = args[0].object().unwrap();
 
     let name_array = name_object.get_field(0).object().unwrap();
-    let name_bytes = name_array.get_array_data();
-
-    let mut name_data = Vec::with_capacity(name_bytes.len());
-    for value in name_bytes {
-        let character = value.get().int() as u16;
-        name_data.push(character);
-    }
+    let name_bytes = name_array.array_data().as_char_array();
+    let name_data = name_bytes.iter().map(Cell::get).collect::<Box<_>>();
 
     let frame_name = String::from_utf16_lossy(&name_data);
     js__set_frame_name(&frame_name);
@@ -207,11 +203,8 @@ fn draw_string(_context: Context, args: &[Value]) -> Result<Option<Value>, Error
     let string_obj = args[1].object().unwrap();
 
     let chars = string_obj.get_field(0).object().unwrap();
-    let chars = chars.get_array_data();
-    let chars = chars
-        .iter()
-        .map(|c| c.get().int() as u16)
-        .collect::<Vec<_>>();
+    let chars = chars.array_data().as_char_array();
+    let chars = chars.iter().map(Cell::get).collect::<Box<_>>();
 
     let string = String::from_utf16_lossy(&chars);
 
@@ -227,11 +220,8 @@ fn internal_set_font(_context: Context, args: &[Value]) -> Result<Option<Value>,
     let string_obj = args[1].object().unwrap();
 
     let chars = string_obj.get_field(0).object().unwrap();
-    let chars = chars.get_array_data();
-    let chars = chars
-        .iter()
-        .map(|c| c.get().int() as u16)
-        .collect::<Vec<_>>();
+    let chars = chars.array_data().as_char_array();
+    let chars = chars.iter().map(Cell::get).collect::<Box<_>>();
 
     let font_name = String::from_utf16_lossy(&chars);
 
