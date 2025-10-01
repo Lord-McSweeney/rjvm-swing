@@ -18,7 +18,7 @@
         <br>
         <br>
         <h4 id="frameName"> Untitled window </h4>
-        <canvas id="outputCanvas" width="800" height="600" style="border: 1px solid black;" tabindex="0"></canvas>
+        <canvas id="outputCanvas" style="image-rendering: pixelated;" width="800" height="600" style="border: 1px solid black;" tabindex="0"></canvas>
         <br>
         <br>
         <h2> Output </h2>
@@ -55,7 +55,7 @@
                             ctx.translate(e.x, e.y);
                             break;
                         case "rotate":
-                            ctx.translate(e.theta);
+                            ctx.rotate(e.theta);
                             break;
                         case "drawString":
                             ctx.fillText(e.text, e.x, e.y);
