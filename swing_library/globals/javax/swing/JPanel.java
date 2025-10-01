@@ -1,5 +1,7 @@
 package javax.swing;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -31,6 +33,20 @@ public class JPanel extends JComponent {
             MouseEvent evt = new MouseEvent(JPanel.mainPanel, 0, 0, 0, x, y, 0, 0, 0, false, 0);
             MouseListener listener = (MouseListener) JPanel.mainPanel;
             listener.mouseReleased(evt);
+        }
+    }
+    private static void globalKeyDown(int code) {
+        if (JPanel.mainPanel instanceof KeyListener) {
+            KeyEvent evt = new KeyEvent(JPanel.mainPanel, 0, 0, 0, code);
+            KeyListener listener = (KeyListener) JPanel.mainPanel;
+            listener.keyPressed(evt);
+        }
+    }
+    private static void globalKeyUp(int code) {
+        if (JPanel.mainPanel instanceof KeyListener) {
+            KeyEvent evt = new KeyEvent(JPanel.mainPanel, 0, 0, 0, code);
+            KeyListener listener = (KeyListener) JPanel.mainPanel;
+            listener.keyReleased(evt);
         }
     }
 }

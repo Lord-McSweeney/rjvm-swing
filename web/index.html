@@ -121,6 +121,22 @@
                 });
             });
 
+            canvas.addEventListener("keydown", function(e) {
+                // TODO more info?
+                worker.postMessage({
+                    "type": "keyDown",
+                    "code": e.keyCode,
+                });
+            });
+
+            canvas.addEventListener("keyup", function(e) {
+                // TODO more info?
+                worker.postMessage({
+                    "type": "keyUp",
+                    "code": e.keyCode,
+                });
+            });
+
             function init() {
                 let fileInput = document.getElementById("fileInput");
                 let commandLineArguments = document.getElementById("commandLineArguments");

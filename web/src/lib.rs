@@ -54,3 +54,13 @@ pub fn on_mouse_down(x: i32, y: i32) {
 pub fn on_mouse_up(x: i32, y: i32) {
     runner::on_mouse_up(x, y)
 }
+
+#[wasm_bindgen(js_name = "onKeyDown")]
+pub fn on_key_down(code: i32) {
+    runner::on_key_down(code)
+}
+
+#[wasm_bindgen(js_name = "onKeyUp")]
+pub fn on_key_up(code: i32) {
+    runner::on_key_up(code)
+}
