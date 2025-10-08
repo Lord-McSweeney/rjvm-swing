@@ -4,7 +4,7 @@ use crate::output_to_err;
 use rjvm_core::{Context, Error, NativeMethod, Value};
 use wasm_bindgen::prelude::*;
 
-pub fn register_native_mappings(context: Context) {
+pub fn register_native_mappings(context: &Context) {
     #[rustfmt::skip]
     let mappings: &[(&str, NativeMethod)] = &[
         ("java/lang/Runtime.exit.(I)V", system_exit),
@@ -31,19 +31,19 @@ extern "C" {
 }
 
 // java/lang/System : static void exit(int)
-fn system_exit(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn system_exit(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let exit_code = args[1].int();
 
     // No exit function on web
     panic!("System.exit called (code {})", exit_code)
 }
 
-fn system_current_time_millis(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+fn system_current_time_millis(_context: &Context, _args: &[Value]) -> Result<Option<Value>, Error> {
     let millisecs = date_now() as i64;
     Ok(Some(Value::Long(millisecs)))
 }
 
-fn internal_init_file_data(context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn internal_init_file_data(context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let file_object = args[0].object().unwrap();
     let name_object = args[1].object().unwrap();
 
@@ -80,15 +80,15 @@ fn internal_init_file_data(context: Context, args: &[Value]) -> Result<Option<Va
     Ok(None)
 }
 
-fn file_get_canonical_path(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+fn file_get_canonical_path(_context: &Context, _args: &[Value]) -> Result<Option<Value>, Error> {
     unimplemented!("File.getCanonicalPath is unimplemented on web")
 }
 
-fn file_get_absolute_path(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+fn file_get_absolute_path(_context: &Context, _args: &[Value]) -> Result<Option<Value>, Error> {
     unimplemented!("File.getAbsolutePath is unimplemented on web")
 }
 
-fn file_stream_write_internal(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn file_stream_write_internal(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let stream = args[0].object().unwrap();
     let stream_fd = stream.get_field(0).object().unwrap();
     let stream_descriptor = stream_fd.get_field(0).int() as u32;
@@ -113,7 +113,7 @@ fn file_stream_write_internal(_context: Context, args: &[Value]) -> Result<Optio
     Ok(None)
 }
 
-fn file_stream_flush_internal(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn file_stream_flush_internal(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let stream = args[0].object().unwrap();
     let stream_fd = stream.get_field(0).object().unwrap();
     let stream_descriptor = stream_fd.get_field(0).int() as u32;
@@ -134,7 +134,7 @@ fn file_stream_flush_internal(_context: Context, args: &[Value]) -> Result<Optio
     Ok(None)
 }
 
-fn file_stream_read_internal(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn file_stream_read_internal(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let stream = args[0].object().unwrap();
     let stream_fd = stream.get_field(0).object().unwrap();
     let stream_descriptor = stream_fd.get_field(0).int() as u32;
@@ -153,7 +153,7 @@ fn file_stream_read_internal(_context: Context, args: &[Value]) -> Result<Option
 }
 
 fn file_stream_read_multi_internal(
-    _context: Context,
+    _context: &Context,
     args: &[Value],
 ) -> Result<Option<Value>, Error> {
     let stream = args[0].object().unwrap();
@@ -176,7 +176,7 @@ fn file_stream_read_multi_internal(
 }
 
 fn file_stream_available_internal(
-    _context: Context,
+    _context: &Context,
     _args: &[Value],
 ) -> Result<Option<Value>, Error> {
     // No files on web
@@ -184,7 +184,7 @@ fn file_stream_available_internal(
 }
 
 fn writeable_descriptor_from_path(
-    _context: Context,
+    _context: &Context,
     _args: &[Value],
 ) -> Result<Option<Value>, Error> {
     // No files on web
@@ -192,7 +192,7 @@ fn writeable_descriptor_from_path(
 }
 
 fn readable_descriptor_from_path(
-    _context: Context,
+    _context: &Context,
     _args: &[Value],
 ) -> Result<Option<Value>, Error> {
     // No files on web

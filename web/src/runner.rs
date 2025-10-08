@@ -16,7 +16,7 @@ thread_local! {
 }
 
 fn init_main_class(
-    context: Context,
+    context: &Context,
     read_file: Vec<u8>,
     is_jar: bool,
 ) -> Result<Class, &'static str> {
@@ -83,7 +83,7 @@ fn init_main_class(
     context.register_class(main_class);
 
     main_class
-        .load_methods(context)
+        .load_methods(&context)
         .expect("Failed to load main class method data");
 
     Ok(main_class)
@@ -95,7 +95,8 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
     let context = Context::new(Box::new(loader));
 
     CONTEXT.with(|m| {
-        *m.lock().unwrap() = Some(context);
+        // Clone is free and points back to the same context
+        *m.lock().unwrap() = Some(context.clone());
     });
 
     // Load globals
@@ -109,12 +110,14 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
         .expect("Builtin globals should be valid");
     context.add_jar(swing_globals_jar);
 
-    base_native_impl::register_native_mappings(context);
-    native_impl::register_native_mappings(context);
-    swing_native_impl::register_native_mappings(context);
+    base_native_impl::register_native_mappings(&context);
+    native_impl::register_native_mappings(&context);
+    swing_native_impl::register_native_mappings(&context);
+
+    context.load_builtins();
 
     // Load the main class from options
-    let main_class = match init_main_class(context, class_data.to_vec(), is_jar) {
+    let main_class = match init_main_class(&context, class_data.to_vec(), is_jar) {
         Ok(class) => class,
         Err(error) => {
             output_to_err(&format!("Error: {}\n", error));
@@ -122,10 +125,6 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
             return;
         }
     };
-
-    let string_class = context
-        .lookup_class(context.common.java_lang_string)
-        .expect("String class should exist");
 
     // Load program args
     let mut program_args = Vec::new();
@@ -137,8 +136,9 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
         program_args.push(Some(string));
     }
 
+    let string_class = context.builtins().java_lang_string;
     let args_array = Value::Object(Some(Object::obj_array(
-        context,
+        &context,
         string_class,
         program_args.into_boxed_slice(),
     )));
@@ -160,12 +160,12 @@ pub(crate) fn run_file(class_data: &[u8], args: Vec<String>, is_jar: bool) {
 
     if let Some(method_idx) = method_idx {
         let method = main_class.static_methods()[method_idx];
-        let result = method.exec(context, &[args_array]);
+        let result = method.exec(&context, &[args_array]);
 
         if let Err(error) = result {
             output_to_err(&format!(
                 "Error while running main: {}\n",
-                error.display(context)
+                error.display(&context)
             ));
         }
     } else {
@@ -180,19 +180,19 @@ macro_rules! define_global_mouse_event_func {
     ($name:ident, $static_method_id:literal) => {
         pub fn $name(x: i32, y: i32) {
             CONTEXT.with(|m| {
-                let context = m.lock().unwrap();
-                if let Some(context) = &*context {
+                let context = m.lock().unwrap().clone();
+                if let Some(context) = &context {
                     let jpanel_str =
                         JvmString::new(context.gc_ctx, "javax/swing/JPanel".to_string());
                     let jpanel_class = context.lookup_class(jpanel_str).unwrap();
                     let method = jpanel_class.static_methods()[$static_method_id];
 
-                    let result = method.exec(*context, &[Value::Integer(x), Value::Integer(y)]);
+                    let result = method.exec(context, &[Value::Integer(x), Value::Integer(y)]);
 
                     if let Err(error) = result {
                         output_to_err(&format!(
                             "Error while running event dispatch: {}\n",
-                            error.display(*context)
+                            error.display(context)
                         ));
                     }
                 }
@@ -205,19 +205,19 @@ macro_rules! define_global_key_event_func {
     ($name:ident, $static_method_id:literal) => {
         pub fn $name(code: i32) {
             CONTEXT.with(|m| {
-                let context = m.lock().unwrap();
-                if let Some(context) = &*context {
+                let context = m.lock().unwrap().clone();
+                if let Some(context) = &context {
                     let jpanel_str =
                         JvmString::new(context.gc_ctx, "javax/swing/JPanel".to_string());
                     let jpanel_class = context.lookup_class(jpanel_str).unwrap();
                     let method = jpanel_class.static_methods()[$static_method_id];
 
-                    let result = method.exec(*context, &[Value::Integer(code)]);
+                    let result = method.exec(context, &[Value::Integer(code)]);
 
                     if let Err(error) = result {
                         output_to_err(&format!(
                             "Error while running event dispatch: {}\n",
-                            error.display(*context)
+                            error.display(context)
                         ));
                     }
                 }

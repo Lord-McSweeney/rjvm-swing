@@ -54,7 +54,7 @@ extern "C" {
     fn js__debug(info: &str);
 }
 
-pub fn register_native_mappings(context: Context) {
+pub fn register_native_mappings(context: &Context) {
     #[rustfmt::skip]
     let mappings: &[(&str, NativeMethod)] = &[
         ("java/awt/Frame.initName.(Ljava/lang/String;)V", init_name),
@@ -74,7 +74,7 @@ pub fn register_native_mappings(context: Context) {
     context.register_native_mappings(mappings);
 }
 
-fn init_name(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn init_name(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let name_object = args[0].object().unwrap();
 
     let name_array = name_object.get_field(0).object().unwrap();
@@ -87,19 +87,19 @@ fn init_name(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     Ok(None)
 }
 
-fn start_paint(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+fn start_paint(_context: &Context, _args: &[Value]) -> Result<Option<Value>, Error> {
     js__start_paint();
 
     Ok(None)
 }
 
-fn flush_paint(_context: Context, _args: &[Value]) -> Result<Option<Value>, Error> {
+fn flush_paint(_context: &Context, _args: &[Value]) -> Result<Option<Value>, Error> {
     js__flush_paint();
 
     Ok(None)
 }
 
-fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn internal_start_timer(context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let delay = args[0].int() as u32;
     let listener = args[1].object().unwrap();
 
@@ -124,14 +124,17 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
         .map(|m| listener_vtable.get_element(m))
         .expect("ActionListener objects should have actionPerformed function");
 
+    // Clone is free
+    let context_clone = context.clone();
+
     let closure = Closure::new(move || {
         if let Err(error) = action_performed_method.exec(
-            context,
+            &context_clone,
             &[Value::Object(Some(listener)), Value::Object(None)],
         ) {
             js__output_to_err(&format!(
                 "Error while running timer callback: {}\n",
-                error.display(context)
+                error.display(&context_clone)
             ));
         }
     });
@@ -143,7 +146,7 @@ fn internal_start_timer(context: Context, args: &[Value]) -> Result<Option<Value
     Ok(None)
 }
 
-fn draw_line(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn draw_line(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let x1 = args[1].int();
     let y1 = args[2].int();
     let x2 = args[3].int();
@@ -154,7 +157,7 @@ fn draw_line(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     Ok(None)
 }
 
-fn fill_rect(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn fill_rect(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let x = args[1].int();
     let y = args[2].int();
     let width = args[3].int();
@@ -165,7 +168,7 @@ fn fill_rect(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     Ok(None)
 }
 
-fn set_color(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn set_color(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let color = args[1].object();
 
     // The docs don't say what happens when calling `setColor(null)`, but
@@ -182,7 +185,7 @@ fn set_color(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     Ok(None)
 }
 
-fn translate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn translate(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let x = args[1].int();
     let y = args[2].int();
 
@@ -191,7 +194,7 @@ fn translate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> 
     Ok(None)
 }
 
-fn rotate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn rotate(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let theta = args[1].double();
 
     js__rotate(theta);
@@ -199,7 +202,7 @@ fn rotate(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
     Ok(None)
 }
 
-fn draw_string(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn draw_string(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let string_obj = args[1].object().unwrap();
 
     let chars = string_obj.get_field(0).object().unwrap();
@@ -216,7 +219,7 @@ fn draw_string(_context: Context, args: &[Value]) -> Result<Option<Value>, Error
     Ok(None)
 }
 
-fn internal_set_font(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn internal_set_font(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let string_obj = args[1].object().unwrap();
 
     let chars = string_obj.get_field(0).object().unwrap();
@@ -240,7 +243,7 @@ fn internal_set_font(_context: Context, args: &[Value]) -> Result<Option<Value>,
     Ok(None)
 }
 
-fn internal_set_cursor(_context: Context, args: &[Value]) -> Result<Option<Value>, Error> {
+fn internal_set_cursor(_context: &Context, args: &[Value]) -> Result<Option<Value>, Error> {
     let cursor_type = args[1].int();
 
     let cursor_name = match cursor_type {
