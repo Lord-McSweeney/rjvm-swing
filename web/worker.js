@@ -4,6 +4,8 @@ await __wbg_init();
 
 setPanicHook();
 
+let isFileLoaded = false;
+
 let paintQueue = [];
 
 self.appendText = function(text) {
@@ -119,26 +121,31 @@ self.addEventListener("message", function(e) {
             }
 
             fileLoaded(currentFileName, currentFileData, args);
+            isFileLoaded = true;
             break;
+    }
 
-        case "mouseMove":
-            onMouseMove(e.data.x, e.data.y);
-            break;
+    if (isFileLoaded) {
+        switch (e.data.type) {
+            case "mouseMove":
+                onMouseMove(e.data.x, e.data.y);
+                break;
 
-        case "mouseDown":
-            onMouseDown(e.data.x, e.data.y);
-            break;
+            case "mouseDown":
+                onMouseDown(e.data.x, e.data.y);
+                break;
 
-        case "mouseUp":
-            onMouseUp(e.data.x, e.data.y);
-            break;
+            case "mouseUp":
+                onMouseUp(e.data.x, e.data.y);
+                break;
 
-        case "keyDown":
-            onKeyDown(e.data.code);
-            break;
+            case "keyDown":
+                onKeyDown(e.data.code);
+                break;
 
-        case "keyUp":
-            onKeyUp(e.data.code);
-            break;
+            case "keyUp":
+                onKeyUp(e.data.code);
+                break;
+        }
     }
 });

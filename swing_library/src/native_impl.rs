@@ -107,14 +107,14 @@ fn internal_start_timer(context: &Context, args: &[Value]) -> Result<Option<Valu
     // in the closure (it won't get collected)
 
     // Lookup actionPerformed method
-    let func_name = JvmString::new(context.gc_ctx, "actionPerformed".to_string());
+    let func_name = JvmString::new(context.gc_ctx(), "actionPerformed".to_string());
     let func_descriptor_name = JvmString::new(
-        context.gc_ctx,
+        context.gc_ctx(),
         "(Ljava/awt/event/ActionEvent;)V".to_string(),
     );
 
-    let func_descriptor = MethodDescriptor::from_string(context.gc_ctx, func_descriptor_name)
-        .expect("Valid descriptor");
+    let func_descriptor =
+        MethodDescriptor::from_string(context, func_descriptor_name).expect("Valid descriptor");
 
     let listener_class = listener.class();
     let listener_vtable = listener_class.instance_method_vtable();
@@ -124,19 +124,18 @@ fn internal_start_timer(context: &Context, args: &[Value]) -> Result<Option<Valu
         .map(|m| listener_vtable.get_element(m))
         .expect("ActionListener objects should have actionPerformed function");
 
-    // Clone is free
-    let context_clone = context.clone();
-
     let closure = Closure::new(move || {
-        if let Err(error) = action_performed_method.exec(
-            &context_clone,
-            &[Value::Object(Some(listener)), Value::Object(None)],
-        ) {
-            js__output_to_err(&format!(
-                "Error while running timer callback: {}\n",
-                error.display(&context_clone)
-            ));
-        }
+        Context::with(|context| {
+            if let Err(error) = context.exec_method(
+                action_performed_method,
+                &[Value::Object(Some(listener)), Value::Object(None)],
+            ) {
+                js__output_to_err(&format!(
+                    "Error while running timer callback: {}\n",
+                    error.display(context)
+                ));
+            }
+        });
     });
 
     js__set_interval(&closure, delay);
